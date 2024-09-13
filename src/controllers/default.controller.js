@@ -53,6 +53,7 @@ const login = (req, res, params) => {
     })
     .on('end', () => {
       body = JSON.parse(Buffer.concat(body).toString())
+      console.log("body : ",body);
       sql.query(
         `select * from users where username='${body.username}' and pwd='${body.pwd}'`,
         (err, result) => {
