@@ -19,6 +19,7 @@ async function route(req, res, path, param) {
   const f = routeConfig[req.method.toLowerCase()][path];
   if (!f) return func();
 
+
   f(req, res, extractParams(param));
 }
 module.exports = { route };
