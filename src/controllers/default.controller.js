@@ -35,10 +35,29 @@ const secure_endpoint = (req, res, params) => {
     )
     return
   }
-  res.end(
-    JSON.stringify({
-      message: 'Welcome to secure endpoint :D'
-    })
+
+  const decoded_data = jwt.decode(token)
+  sql.query(
+    `Select * from users where username='${decoded_data.username}' and pwd='${decoded_data.pwd}'`,
+    (err, result) => {
+      if(err) {
+        errorM(res,err);
+        return;
+      }
+      if(result.recordset.length==0) {
+        jsonM(res,403,"jwt malformed");
+        return;
+      }
+      delete result.recordset[0]["pwd"]
+      res.end(
+        JSON.stringify({
+          message: 'Welcome to secure endpoint :D',
+          data: {
+            ...result.recordset[0]
+          }
+        })
+      )
+    }
   )
 }
 
@@ -53,7 +72,7 @@ const login = (req, res, params) => {
     })
     .on('end', () => {
       body = JSON.parse(Buffer.concat(body).toString())
-      console.log("body : ",body);
+      console.log('body : ', body)
       sql.query(
         `select * from users where username='${body.username}' and pwd='${body.pwd}'`,
         (err, result) => {
@@ -114,23 +133,23 @@ const signup = (req, res, params) => {
     })
     .on('end', () => {
       body = JSON.parse(Buffer.concat(body).toString())
-      console.log("body : " ,body);
+      console.log('body : ', body)
       sql.query(
         `select * from users where username='${body.username}'`,
         (err, result) => {
-          if(err){
-            return errorM(res,err);
+          if (err) {
+            return errorM(res, err)
           }
-          console.log("selec query : ",result);
-          if(result.recordset.length >0) {
-            jsonM(res,400,`user with ${body.username} already exists`);
+          console.log('selec query : ', result)
+          if (result.recordset.length > 0) {
+            jsonM(res, 400, `user with ${body.username} already exists`)
             return
           }
           const query = `insert into users(first_name,last_name,gender,phone,pwd,username) values('${body.first_name}','${body.last_name}','${body.gender}','${body.phone}','${body.pwd}','${body.username}')`
 
           sql.query(query, (err, result) => {
-            if(err){
-              return errorM(res,err);
+            if (err) {
+              return errorM(res, err)
             }
             console.log(result)
             jsonM(res, 201, 'Resource Successfully created')
