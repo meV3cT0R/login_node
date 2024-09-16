@@ -40,20 +40,32 @@ const secure_endpoint = (req, res, params) => {
   sql.query(
     `Select * from users where username='${decoded_data.username}' and pwd='${decoded_data.pwd}'`,
     (err, result) => {
-      if(err) {
-        errorM(res,err);
-        return;
+      if (err) {
+        errorM(res, err)
+        return
       }
-      if(result.recordset.length==0) {
-        jsonM(res,403,"jwt malformed");
-        return;
+      if (result.recordset.length == 0) {
+        jsonM(res, 403, 'jwt malformed')
+        return
       }
-      delete result.recordset[0]["pwd"]
+      delete result.recordset[0]['pwd']
+
+      // const base64Image = result.recordset[0]["image"];
+      // const chunkSize = 1024 
+      // const totalChunks = Math.ceil(base64Image.length / chunkSize)
+      // const chunks = []
+
+      // for (let i = 0; i < totalChunks; i++) {
+      //   chunks.push(base64Image.slice(i * chunkSize, (i + 1) * chunkSize))
+      // }
+
       res.end(
         JSON.stringify({
           message: 'Welcome to secure endpoint :D',
           data: {
-            ...result.recordset[0]
+            ...result.recordset[0],
+            // chunks,
+            // totalChunks
           }
         })
       )
@@ -103,6 +115,7 @@ const login = (req, res, params) => {
           }
           console.log(result.recordset)
           res.statusCode = 200
+          delete result.recordset[0]["image"]
           jwt.sign(
             {
               ...result.recordset[0]
@@ -145,7 +158,7 @@ const signup = (req, res, params) => {
             jsonM(res, 400, `user with ${body.username} already exists`)
             return
           }
-          const query = `insert into users(first_name,last_name,gender,phone,pwd,username) values('${body.first_name}','${body.last_name}','${body.gender}','${body.phone}','${body.pwd}','${body.username}')`
+          const query = `insert into users(first_name,last_name,gender,phone,pwd,username,image) values('${body.first_name}','${body.last_name}','${body.gender}','${body.phone}','${body.pwd}','${body.username}','${body.image}')`
 
           sql.query(query, (err, result) => {
             if (err) {

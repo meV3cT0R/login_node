@@ -1,6 +1,6 @@
 const { editUser, changePassword } = require('../controllers/crudUser.controller')
 const { secure_endpoint, login, signup } = require('../controllers/default.controller')
-const { createStudent } = require('../controllers/student/crudStudent.controller')
+const { createStudent, getAllStudent } = require('../controllers/student/crudStudent.controller')
 
 
 const routeConfig = {
@@ -9,10 +9,12 @@ const routeConfig = {
     signup : signup,
     edit : editUser,
     change_password : changePassword,
-    "student/create" : createStudent
+    "students/create" : createStudent,
   },
   get: {
-    secure_endpoint: secure_endpoint
+    secure_endpoint: secure_endpoint,
+    "students" : getAllStudent
+
   }
 }
 
