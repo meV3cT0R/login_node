@@ -25,6 +25,7 @@ const jwtVerify = (req,res,params,next) => {
         if(err){
             throw err;
         }
+        req.userId=decoded.id;
         next(req,res,params)
     })
 }

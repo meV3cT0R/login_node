@@ -2,6 +2,7 @@ const sql = require('mssql')
 const jwt = require('jsonwebtoken')
 const { errorM } = require('../utils/error/genericErrorHandling')
 const { jsonM } = require('../utils/messageUtils')
+const { postHelper } = require('../utils/requestHelpers/postHelper')
 
 require('dotenv').config()
 
@@ -138,37 +139,6 @@ const login = (req, res, params) => {
 const signup = (req, res, params) => {
   res.setHeader('Content-Type', 'application/json')
 
-  let body = []
-  req
-    .on('data', chunk => {
-      body.push(chunk)
-      console.log('Parsing Request Body')
-    })
-    .on('end', () => {
-      body = JSON.parse(Buffer.concat(body).toString())
-      console.log('body : ', body)
-      sql.query(
-        `select * from users where username='${body.username}'`,
-        (err, result) => {
-          if (err) {
-            return errorM(res, err)
-          }
-          console.log('selec query : ', result)
-          if (result.recordset.length > 0) {
-            jsonM(res, 400, `user with ${body.username} already exists`)
-            return
-          }
-          const query = `insert into users(first_name,last_name,gender,phone,pwd,username,image) values('${body.first_name}','${body.last_name}','${body.gender}','${body.phone}','${body.pwd}','${body.username}','${body.image}')`
-
-          sql.query(query, (err, result) => {
-            if (err) {
-              return errorM(res, err)
-            }
-            console.log(result)
-            jsonM(res, 201, 'Resource Successfully created')
-          })
-        }
-      )
-    })
+  postHelper(req,res,params,["name","username","gender","phone","pwd","image"],"users")
 }
 module.exports = { secure_endpoint, login, signup }
