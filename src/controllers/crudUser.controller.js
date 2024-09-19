@@ -2,30 +2,12 @@ const sql = require('mssql')
 const { errorM } = require('../utils/error/genericErrorHandling')
 const { jsonM } = require('../utils/messageUtils')
 const jwt = require("jsonwebtoken");
+const { putHelper } = require('../utils/requestHelpers/putHelper');
 const editUser = (req, res, params) => {
   res.setHeader('Content-Type', 'application/json')
-  let body = []
   console.log('Editing user data')
-  req
-    .on('data', chunk => {
-      body.push(chunk)
-    })
-    .on('end', () => {
-      body = JSON.parse(Buffer.concat(body).toString())
-      console.log('[editUser.js] body :', body)
 
-      sql.query(
-        `update users set first_name='${body.first_name}',last_name='${body.last_name}',username='${body.username}',gender='${body.gender}',phone='${body.phone}' where id=${body.id}`,
-        function (err, result) {
-          console.log('Edit result', result)
-          if (err) {
-            errorM(res, err)
-            return
-          }
-          jsonM(res, 200, 'User Successfully updated')
-        }
-      )
-    })
+  putHelper(req,res,params,"users",["id"],["id"])
 }
 
 const changePassword = (req, res, params) => {

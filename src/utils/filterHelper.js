@@ -25,6 +25,8 @@ const filters = {
         lt: ",",
         ge: ">=",
         le: "<=",
+        ne: "!=",
+        is: "is",
       };
       let str = "where ";
       for (const a of arr) {

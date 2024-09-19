@@ -4,4 +4,9 @@ function jsonM(res,code,message) {
         message
     }))
 }
-module.exports = {jsonM}
+
+function jsonJ(res,code,json) {
+    res.statusCode = code,
+    res.end(JSON.stringify(json))
+}
+module.exports = {jsonM,jsonJ}

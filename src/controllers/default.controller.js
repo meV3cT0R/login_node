@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const { errorM } = require('../utils/error/genericErrorHandling')
 const { jsonM } = require('../utils/messageUtils')
 const { postHelper } = require('../utils/requestHelpers/postHelper')
+const { bodyParser } = require('../middlewares/bodyParser')
 
 require('dotenv').config()
 
@@ -138,7 +139,6 @@ const login = (req, res, params) => {
 
 const signup = (req, res, params) => {
   res.setHeader('Content-Type', 'application/json')
-
   postHelper(req,res,params,["name","username","gender","phone","pwd","image"],"users")
 }
 module.exports = { secure_endpoint, login, signup }

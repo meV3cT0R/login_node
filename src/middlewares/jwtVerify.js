@@ -25,6 +25,10 @@ const jwtVerify = (req,res,params,next) => {
         if(err){
             throw err;
         }
+        if(result.recordset.length==0) {
+            jsonM(res,401,"Unauthorized")
+            return;
+        }
         req.userId=decoded.id;
         next(req,res,params)
     })

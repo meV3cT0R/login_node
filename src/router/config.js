@@ -10,9 +10,11 @@ const {
 const {
   createStudent,
   getAllStudent,
-  getAllFaculty
+  getAllFaculty,
+  updateStudent,
+  deleteStudent
 } = require('../controllers/student/crudStudent.controller')
-
+const ncs = require('../controllers/student/newCrudStudent')
 
 const routeConfig = {
   post: {
@@ -20,12 +22,18 @@ const routeConfig = {
     signup: signup,
     edit: editUser,
     change_password: changePassword,
-    'students/create': createStudent
+    'students/create': ncs.createStudent
   },
   get: {
     secure_endpoint: secure_endpoint,
-    students: getAllStudent,
-    faculty: getAllFaculty
+    students: ncs.getAllStudents,
+    faculty: ncs.getAllFaculty
+  },
+  delete: {
+    'students/delete': deleteStudent
+  },
+  put: {
+    'students/update': updateStudent
   }
 }
 
