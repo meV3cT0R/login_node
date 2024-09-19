@@ -1,5 +1,6 @@
 const sql = require('mssql')
 
+
 const getHelper = async formTemplate => {
   try {
     const template = await sql.query(
@@ -28,10 +29,13 @@ const getHelper = async formTemplate => {
       console.log(query)
       const d = await sql.query(query)
       console.log(d.recordset[0])
-      const tempData = {}
+      const tempData = {
+        id : val.formId
+      }
 
       for (const col of cols) {
-        tempData[colObj[col]] = d.recordset[0][col]
+        if(d.recordset[0] && d.recordset[0][col])
+          tempData[colObj[col]] = d.recordset[0][col]
       }
       data.push(tempData)
     }

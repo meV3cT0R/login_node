@@ -83,4 +83,4 @@ function putHelper (
     })
 }
 
-module.exports = { putHelper }
+module.exports = { putHelper,queryGenerator }

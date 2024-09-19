@@ -30,10 +30,10 @@ const routeConfig = {
     faculty: ncs.getAllFaculty
   },
   delete: {
-    'students/delete': deleteStudent
+    'students/delete': ncs.deleteStudent
   },
   put: {
-    'students/update': updateStudent
+    'students/update': ncs.updateStudent
   }
 }
 

@@ -1,5 +1,4 @@
 const sql = require('mssql')
-const { bodyParser } = require('../../middlewares/bodyParser')
 
 const postHelper = async (formTemplate,body) => {
   try {
