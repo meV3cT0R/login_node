@@ -20,7 +20,6 @@ const routeConfig = {
   post: {
     login: login,
     signup: signup,
-    edit: editUser,
     change_password: changePassword,
     'students/create': ncs.createStudent
   },
@@ -33,7 +32,8 @@ const routeConfig = {
     'students/delete': ncs.deleteStudent
   },
   put: {
-    'students/update': ncs.updateStudent
+    'students/update': ncs.updateStudent,
+    edit: editUser
   }
 }
 

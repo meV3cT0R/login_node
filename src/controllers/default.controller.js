@@ -2,8 +2,11 @@ const sql = require('mssql')
 const jwt = require('jsonwebtoken')
 const { errorM } = require('../utils/error/genericErrorHandling')
 const { jsonM } = require('../utils/messageUtils')
-const { postHelper } = require('../utils/newRequestHelper/postHelper')
 const { bodyParser } = require('../middlewares/bodyParser')
+const {
+  filePostHelper
+} = require('../utils/newRequestHelper/file/filePostHelper')
+const { postHelper } = require('../utils/requestHelpers/postHelper')
 
 require('dotenv').config()
 
@@ -40,7 +43,7 @@ const secure_endpoint = (req, res, params) => {
 
   const decoded_data = jwt.decode(token)
   sql.query(
-    `Select * from formData where charField7='${decoded_data.username}' and charField8='${decoded_data.password}'`,
+    `Select * from users where username='${decoded_data.username}' and password='${decoded_data.password}'`,
     (err, result) => {
       if (err) {
         errorM(res, err)
@@ -50,27 +53,14 @@ const secure_endpoint = (req, res, params) => {
         jsonM(res, 403, 'jwt malformed')
         return
       }
-      sql.query(
-        'select actualName,fieldName from formTemplate where formTemplate=2',
-        (err, templateResult) => {
-          const colObj = {}
-          for (const val of templateResult.recordset) {
-            if (result.recordset[0][val.fieldName])
-              colObj[val.actualName] = result.recordset[0][val.fieldName]
+      delete result.recordset[0]["password"]
+      res.end(
+        JSON.stringify({
+          message: 'Welcome to secure endpoint :D',
+          data: {
+            ...result.recordset[0],
           }
-          delete colObj['password']
-
-
-          res.end(
-            JSON.stringify({
-              message: 'Welcome to secure endpoint :D',
-              data: {
-                ...colObj
-
-              }
-            })
-          )
-        }
+        })
       )
     }
   )
@@ -89,10 +79,10 @@ const login = (req, res, params) => {
       body = JSON.parse(Buffer.concat(body).toString())
       console.log('body : ', body)
       sql.query(
-        `select * from formData where charField7='${body.username}' and charField8='${body.pwd}'`,
+        `select * from users where username='${body.username}' and password='${body.password}'`,
         (err, result) => {
           if (err) {
-            res.statusCode = 500
+            res.statusCode = 400
             if (err instanceof Error) {
               res.end(
                 JSON.stringify({
@@ -117,29 +107,20 @@ const login = (req, res, params) => {
             return
           }
           console.log(result.recordset)
-          sql.query(
-            'select actualName,fieldName from formTemplate where formTemplate=2',
-            (err, templateResult) => {
-              const colObj = {}
-              for (const val of templateResult.recordset) {
-                if (result.recordset[0][val.fieldName])
-                  colObj[val.actualName] = result.recordset[0][val.fieldName]
-              }
-              console.log(colObj)
-              res.statusCode = 200
-              jwt.sign(
-                {
-                  ...colObj
-                },
-                process.env.SECRET_KEY,
-                (err, token) => {
-                  res.end(
-                    JSON.stringify({
-                      message: 'Login Success',
-                      token: token
-                    })
-                  )
-                }
+          
+          res.statusCode = 200
+          delete result.recordset[0]["avatar"]
+          jwt.sign(
+            {
+              ...result.recordset[0]
+            },
+            process.env.SECRET_KEY,
+            (err, token) => {
+              res.end(
+                JSON.stringify({
+                  message: 'Login Success',
+                  token: token
+                })
               )
             }
           )
@@ -150,13 +131,23 @@ const login = (req, res, params) => {
 
 const signup = async (req, res, params) => {
   res.setHeader('Content-Type', 'application/json')
-  try {
-    await bodyParser(req, res, params)
-    await postHelper(2, req.body)
-    jsonM(res, 200, 'Resource Successfully Created')
-  } catch (err) {
-    jsonM(res, 500, err)
-    throw err
-  }
+  postHelper(
+    req,
+    res,
+    params,
+    [
+      'firstName',
+      'lastName',
+      'gender',
+      'email',
+      'phone',
+      'dob',
+      'username',
+      'password',
+      'avatar',
+      'address'
+    ],
+    'users'
+  )
 }
 module.exports = { secure_endpoint, login, signup }

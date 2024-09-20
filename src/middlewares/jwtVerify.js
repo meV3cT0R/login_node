@@ -9,7 +9,6 @@ const jwtVerify = (req,res,params,next) => {
     console.log("provided auth : " , auth);
     if(!auth) {
         throw new Error("No auth provided");
-        return;
     }
     const token = auth.split(" ")[1];
 
@@ -21,7 +20,7 @@ const jwtVerify = (req,res,params,next) => {
 
     const decoded = jwt.decode(token);
     console.log(decoded);
-    sql.query(`select * from users where id=${decoded.id} and username='${decoded.username}' and pwd='${decoded.pwd}'`,(err,result)=> {
+    sql.query(`select * from users where userId=${decoded.userId} and username='${decoded.username}' and pwd='${decoded.pwd}'`,(err,result)=> {
         if(err){
             throw err;
         }
@@ -29,7 +28,7 @@ const jwtVerify = (req,res,params,next) => {
             jsonM(res,401,"Unauthorized")
             return;
         }
-        req.userId=decoded.id;
+        req.userId=decoded.userId;
         next(req,res,params)
     })
 }

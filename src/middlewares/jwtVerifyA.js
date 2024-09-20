@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const sql = require('mssql')
 require('dotenv').config()
 
-const jwtVerifyA = (req, res, params) => {
+const jwtVerifyA = async (req, res, params) => {
   return new Promise((resolve, reject) => {
     const auth = req.headers['Authorization'] || req.headers['authorization']
     console.log('provided auth : ', auth)
@@ -25,7 +25,7 @@ const jwtVerifyA = (req, res, params) => {
     const decoded = jwt.decode(token)
     console.log(decoded)
     sql.query(
-      `select * from formData where charField7='${decoded.username}' and charField8='${decoded.password}'`,
+      `select * from users where userId=${decoded.userId} and username='${decoded.username}' and password='${decoded.password}'`,
       (err, result) => {
         if (err) {
           reject(err)
@@ -35,9 +35,11 @@ const jwtVerifyA = (req, res, params) => {
           reject(err)
           throw new Error('User not found')
         }
-        req.userId = result.recordset[0].formId
+        
+        req.userId = result.recordset[0].userId
+        req.role = result.recordset[0].role
         console.log(req.userId);
-        resolve(result.recordset[0].formId)
+        resolve(result.recordset[0].userId)
       }
     )
   })

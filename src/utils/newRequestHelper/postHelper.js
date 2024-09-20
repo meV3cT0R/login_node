@@ -1,16 +1,16 @@
 const sql = require('mssql')
 
-const postHelper = async (formTemplate,body) => {
+const postHelper = async (formTemplate, body, userId) => {
   try {
     const template = await sql.query(
       `select fieldName,actualName from formTemplate where formTemplate=${formTemplate}`
     )
-    await sql.query(
-      `insert into formTable(formTemplate) values('${formTemplate}')`
-    )
     const selectData = await sql.query(
-      `select top 1 * from formTable order by createdAt desc;`
+      `insert into formTable(formTemplate) OUTPUT Inserted.formId values('${formTemplate}')`
     )
+    
+    
+
     console.log(selectData)
     const formTable = selectData.recordset
 
@@ -25,16 +25,31 @@ const postHelper = async (formTemplate,body) => {
       if (body[col]) colObj[cols[col]] = body[col]
     }
     console.log('colObj', colObj)
+
     const query = `insert into formData(${Object.keys(colObj).join(
       ','
-    )},formId) values(${Object.keys(colObj)
+    )},formId) 
+    OUTPUT Inserted.formDataId
+    values(${Object.keys(colObj)
       .map(key => {
         return `'${colObj[key]}'`
       })
       .join(',')},${formTable[0].formId})`
     console.log(query)
-    await sql.query(query)
-    return;
+
+    const insertedFormDataId = await sql.query(query)
+    console.log("Data Inserted",insertedFormDataId);
+
+    const modQuery = `insert into formDataModifiedHistory(${Object.keys(colObj).join(
+      ','
+    )},formDataId,type,createdBy) values(${Object.keys(colObj)
+      .map(key => {
+        return `'${colObj[key]}'`
+      })
+      .join(',')},${insertedFormDataId.recordset[0].formDataId},'insert',${userId})`
+
+    await sql.query(modQuery);
+    return formTable[0].formId
   } catch (err) {
     throw err
   }

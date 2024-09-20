@@ -1,5 +1,18 @@
 use temp6;
 
+create table users (
+	userId int identity(1,1) primary key,
+	firstName varchar(50) not null,
+	lastName varchar(50) not null,
+	gender varchar(7) not null,
+	email varchar(50) not null,
+	phone varchar(50) not null,
+	dob date not null,
+	address varchar(50) not null,
+	username varchar(50) not null,
+	password varchar(200) not null,
+	avatar varchar(max) not null
+)
 
 create table formTemplate   (
 	formTemplateId int identity(1,1) primary key,
@@ -10,12 +23,25 @@ create table formTemplate   (
 	formTemplate int not null
 ) 
 
+create table formTemplateModifiedHistory   (
+	formTemplateId int identity(1,1) primary key,
+	fieldName varchar(50) not null,
+	actualName varchar(50) not null,
+	formTemplate int not null,
+	createdBy int not null,
+	createdAt datetime default current_timestamp,
+	deletedAt datetime,
+	deletedBy int not null
+	constraint fkFormFilesModifiedHistoryCreatedBy foreign key (createdBy) references users(userId),
+	constraint fkFormFilesModifiedHistoryDeletedBy foreign key (deletedBy) references users(userId)
+) 
+
+
 create table formTable (
 	formId int identity(1,1) primary key,
 	createdAt datetime default current_timestamp,
 	deletedAt datetime,
-	formTemplate int not null,
-
+	formTemplate int not null
 )
 
 create table formTableModHistory (
@@ -146,7 +172,7 @@ create table formFilesModifiedFields (
 )
 
 
-use temp6;
+use temp11;
 
 insert into formTemplate(fieldName,actualName,formTemplate) 
 values('charField1','firstName',1),
@@ -226,8 +252,95 @@ update formFiles set deletedAt='2024-09-19' where formId=6
 select * from formTemplate where formTemplate=1;
 update formData set charField1='Bigg' where formId=1;
 
+select * from formTable;
 select * from formData;
 insert into formDataModHistory(modifiedBy,modifiedAt,modifiedFormDataId) values(1,'2024-09-19',6);
 select * from formDataModHistory;
 insert into formDataModifiedFields(formDataModHistoryId,fieldName,fieldPrevValue,fieldNewValue) values(5,'charField1','meow','Bigg');
 select * from formDataModifiedFields;
+
+use temp6
+select * from formFiles;
+
+
+
+select charField1,charField2 from formData inner join formTable on formData.formId=formTable.formId inner join formFiles;
+
+select * from formFiles;
+select * from formFilesModHistory
+select * from formFilesModifiedFields;
+
+
+select * from formData;
+select * from formDataModHistory;
+select * from formDataModifiedFields;
+
+select * from formTemplate where formTemplate=2;
+
+select * from formTable;
+
+select * from formTableModHistory;
+
+
+
+
+create table formDataModifiedHistory (
+	formDataModifiedHistoryId int identity(1,1) primary key,
+	charField1 varchar(50),
+	charField2 varchar(50),
+	charField3 varchar(50),
+	charField4 varchar(50),
+	charField5 varchar(50),
+	charField6 varchar(50),
+	charField7 varchar(50),
+	charField8 varchar(50),
+	charField9 varchar(50),
+	charField10 varchar(50),
+	charField11 varchar(50),
+	charField12 varchar(50),
+	charField13 varchar(50),
+	dateField1 date,
+	dateField2 date,
+	dateField3 date,
+	dateField4 date,
+	dateTimeField1 datetime,
+	dateTimeField2 datetime,
+	dateTimeField3 datetime,
+	numberField1 int,
+	numberField2 int,
+	numberField3 int,
+	numberField4 int,
+	numberField5 int,
+	numberField6 int,
+	floatField1 float,
+	floatField2 float,
+	floatField3 float,
+	floatField4 float,
+	floatField5 float,
+	type varchar(20) not null,
+	formDataId int not null,
+	createdBy int not null,
+	createdAt datetime default current_timestamp,
+	deletedAt datetime,
+	deletedBy int not null
+	constraint fkFormDataModifiedHistoryFormTable foreign key (formDataId) references formData(formDataId),
+	constraint fkFormDataModifiedHistoryCreatedBy foreign key (createdBy) references users(userId),
+	constraint fkFormDataModifiedHistoryDeletedBy foreign key (deletedBy) references users(userId)
+)
+
+create table formFilesModifiedHistory (
+	formFileId int identity(1,1) primary key,
+	fileName varchar(50) not null,
+	fileType varchar(10) not null,
+	fileData varchar(max) not null,
+	formFilesId int not null,
+	constraint fkformFilesModifiedHistoryFormFiles foreign key (formFilesId) references formFiles(formFileId),
+	type varchar(20) not null,
+	createdBy int not null,
+	createdAt datetime default current_timestamp,
+	deletedAt datetime,
+	deletedBy int not null
+	constraint fkFormFilesModifiedHistoryCreatedBy foreign key (createdBy) references users(userId),
+	constraint fkFormFilesModifiedHistoryDeletedBy foreign key (deletedBy) references users(userId)
+)
+

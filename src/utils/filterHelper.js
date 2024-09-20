@@ -15,7 +15,7 @@ const filters = {
     $skip: (val) => {
       return [`offset ${val} rows`, 1];
     },
-    $filter: (val) => {
+    $filter: (val,noWhere) => {
       val = val.trim();
       const arr = val.split(" ");
       console.log(arr);
@@ -28,7 +28,7 @@ const filters = {
         ne: "!=",
         is: "is",
       };
-      let str = "where ";
+      let str = noWhere && "where " || "and ";
       for (const a of arr) {
         if (a in strToSym) {
           str += `${strToSym[a]} `;
@@ -40,7 +40,7 @@ const filters = {
     },
   };
   
-  function filterHelper(start, end, params,defaultOrderBy="id asc") {
+  function filterHelper(start, end, params,defaultOrderBy="id asc",noWhere) {
     console.log("Building Query String");
     if(!("$orderby" in params)) params["$orderby"] = defaultOrderBy
 
@@ -51,7 +51,7 @@ const filters = {
     console.log(`Looping through ${JSON.stringify(params)}`)
     for (const k in params) {
       console.log(`params[${k}] : ${params[k]}`);
-      tempStrArr.push(filters[k](params[k]));
+      tempStrArr.push(filters[k](params[k],noWhere));
     }
     tempStrArr.push([end, -1]);
   
