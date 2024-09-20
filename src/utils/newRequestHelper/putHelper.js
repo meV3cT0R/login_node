@@ -1,17 +1,22 @@
 const { queryGenerator } = require("../requestHelpers/putHelper")
 const sql = require('mssql')
 
-const putHelper = async (formTemplate,body,userId) => {
+const putHelper = async (formTemplate,body,userId,role) => {
   console.log("put body",body);
   try {
 
     const template = await sql.query(
       `select fieldName,actualName from formTemplate where formTemplate=${formTemplate}`
     )
-    const selectData = await sql.query(
-      `insert into formTable(formTemplate) OUTPUT Inserted.formId values('${formTemplate}')`
-    )
-    
+
+    if(role=="editor"){
+      const formDataResult = await sql.query(`select * from formData where formDataId=${body["id"]} `) 
+      console.log("userId :" , userId);
+      console.log("formData : " , formDataResult.recordset[0]);
+      if(formDataResult.recordset[0].createdBy!=userId)
+        throw new Error("Not Enough Permission");
+    }
+
     const colObj = {}
 
     for (const val of template.recordset) {

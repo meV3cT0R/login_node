@@ -9,13 +9,13 @@ const {
 const { bodyParser } = require('../middlewares/bodyParser')
 const { jwtVerifyA } = require('../middlewares/jwtVerifyA')
 const { queryGenerator } = require('../utils/requestHelpers/putHelper')
+const { verifyEditor } = require('../middlewares/verifyEditor')
 
 const editUser = async (req, res, params) => {
   res.setHeader('Content-Type', 'application/json')
   try {
     await bodyParser(req, res, params)
     await jwtVerifyA(req, res, params)
-
     const query = queryGenerator(req.body, 'users', ['userId'], ['userId'])
 
     const userId = req.body['userId']

@@ -37,7 +37,7 @@ const jwtVerifyA = async (req, res, params) => {
         }
         
         req.userId = result.recordset[0].userId
-        req.role = result.recordset[0].role
+        req.role = result.recordset[0].roles
         console.log(req.userId);
         resolve(result.recordset[0].userId)
       }

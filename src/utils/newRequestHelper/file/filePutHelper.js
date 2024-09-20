@@ -1,7 +1,8 @@
 const sql = require('mssql');
 const { queryGenerator } = require('../../requestHelpers/putHelper');
+const { filePostHelper } = require('./filePostHelper');
 
-const filePutHelper = async (file,userId) => {
+const filePutHelper = async (file,userId,role,formId) => {
   console.log("put file body",file);
   try {
     const query = queryGenerator(
@@ -16,7 +17,15 @@ const filePutHelper = async (file,userId) => {
     // const formDataQuery = `select * from formFiles where formFileId=${file.formFileId}`;
     // console.log("Form Data Query : ",formDataQuery);
     // const formData = await sql.query(formDataQuery)
-    
+    if(role=="editor"){
+      const formDataResult = await sql.query(`select * from formFiles where formFileId=${file["formFileId"]} `) 
+      if(formDataResult.recordset.length ==0) {
+        await filePostHelper(formId,[file],userId);
+        return;
+      }
+      if(formDataResult.recordset[0].createdBy!=userId)
+        throw new Error("Not Enough Permission");
+    }
     await sql.query(query);
 
 

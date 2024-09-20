@@ -1,12 +1,13 @@
 const sql = require('mssql')
 
 const postHelper = async (formTemplate, body, userId) => {
+  console.log("post helper", userId);
   try {
     const template = await sql.query(
       `select fieldName,actualName from formTemplate where formTemplate=${formTemplate}`
     )
     const selectData = await sql.query(
-      `insert into formTable(formTemplate) OUTPUT Inserted.formId values('${formTemplate}')`
+      `insert into formTable(formTemplate,createdBy) OUTPUT Inserted.formId values('${formTemplate}',${userId})`
     )
     
     
@@ -28,13 +29,13 @@ const postHelper = async (formTemplate, body, userId) => {
 
     const query = `insert into formData(${Object.keys(colObj).join(
       ','
-    )},formId) 
+    )},formId,createdBy) 
     OUTPUT Inserted.formDataId
     values(${Object.keys(colObj)
       .map(key => {
-        return `'${colObj[key]}'`
+        return `'${colObj[key]}'` 
       })
-      .join(',')},${formTable[0].formId})`
+      .join(',')},${formTable[0].formId},${userId})`
     console.log(query)
 
     const insertedFormDataId = await sql.query(query)

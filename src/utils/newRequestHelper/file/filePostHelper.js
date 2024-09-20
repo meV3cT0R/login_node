@@ -3,9 +3,9 @@ const sql = require('mssql')
 const filePostHelper = async (formId,files,userId) => {
     try {
         if(files.length==0) throw new Error("No Files to Work On");
-        let query = `insert into formFiles(fileName,fileType,fileData,formId) OUTPUT Inserted.formFileId values`
+        let query = `insert into formFiles(fileName,fileType,fileData,formId,createdBy) OUTPUT Inserted.formFileId values`
         for(let i =0;i<files.length;i++){
-            query+=`('${files[0].fileName}','${files[0].fileType}','${files[0].fileData}',${formId})`
+            query+=`('${files[0].fileName}','${files[0].fileType}','${files[0].fileData}',${formId},${userId})`
             if(i!=files.length-1) query+=","
         }
         console.log(query);
