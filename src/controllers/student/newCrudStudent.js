@@ -17,6 +17,7 @@ const {
 } = require('../../utils/newRequestHelper/file/filePutHelper')
 const { verifyEditor } = require('../../middlewares/verifyEditor')
 const { UnauthorizedError } = require('../../middlewares/errors/UnAuthorizedError')
+const { getVerifiedUser } = require('../../middlewares/getVerifiedUser')
 
 const formTemplate = 1
 
@@ -24,7 +25,11 @@ const getAllStudents = async (req, res, params) => {
   res.setHeader('Content-Type', 'application/json')
   try {
     await jwtVerifyA(req, res, params)
-    const data = await getHelper(formTemplate, params)
+    const user = await getVerifiedUser(req,res,params);
+    console.log("Returned Verified User : ",user);
+    const data = await getHelper(formTemplate, params, user)
+    console.log("Returned Verified User after get Helper: ",user);
+
     jsonJ(res, 200, data)
   } catch (err) {
     jsonM(res, 500, err)
@@ -88,7 +93,7 @@ const deleteStudent = async (req, res, params) => {
     console.log("req.role",req.role);
     await verifyEditor(req)
     console.log("req.body.id",req.body.id);
-    await deleteHelper(req.body.id,req.role)
+    await deleteHelper(req.body.id,req.role,req.userId)
     jsonM(res, 200, 'Resource Deleted Successfully')
   } catch (err) {
     console.error(err);

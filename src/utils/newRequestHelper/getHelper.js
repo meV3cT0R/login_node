@@ -2,7 +2,7 @@ const sql = require('mssql')
 const { filterHelper } = require('../filterHelper')
 
 
-const getHelper = async (formTemplate,params={}) => {
+const getHelper = async (formTemplate,params={},user) => {
   try {
     const template = await sql.query(
       `select fieldName,actualName from formTemplate where formTemplate=${formTemplate}`
@@ -22,8 +22,12 @@ const getHelper = async (formTemplate,params={}) => {
 
     const data = []
 
-
-    const query = `select formDataId,formData.formId${cols.length!=0? ",":" "}${cols.join(',')} from formData inner join formTable on formData.formId=formTable.formId where formTable.formTemplate=${formTemplate} and formData.deletedAt is null `
+    let query = `select formDataId,formData.formId${cols.length!=0? ",":" "}${cols.join(',')} from formData inner join formTable on formData.formId=formTable.formId where formTable.formTemplate=${formTemplate} and formData.deletedAt is null `
+    console.log("User inside getHelper",user);
+    if(user && user.roles=="editor") {
+      console.log("Is a Editor")
+      query += `and formTable.createdBy = ${user.userId} `
+    }
     console.log("Simple Query  :",query)
 
     const filteredQuery = filterHelper(query,"",params,"formData.formId",false)
